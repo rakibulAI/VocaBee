@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reduan's Method — Learn English the Smart Way</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root{--orb1:#7c3aed;--orb2:#06b6d4;--orb3:#f59e0b;--orb4:#ec4899;--glass-bg:rgba(255,255,255,0.055);--glass-border:rgba(255,255,255,0.1);--glass-hover:rgba(255,255,255,0.09);--glass-card:rgba(255,255,255,0.04);--glass-strong:rgba(255,255,255,0.13);--primary:#7c3aed;--primary-light:#a78bfa;--accent:#06b6d4;--accent2:#f59e0b;--accent3:#ec4899;--bg-deep:#04040f;--text-1:rgba(255,255,255,0.95);--text-2:rgba(255,255,255,0.62);--text-3:rgba(255,255,255,0.38);--blur-sm:blur(10px);--blur-md:blur(20px);--blur-lg:blur(30px);--radius-sm:14px;--radius-md:20px;--radius-lg:28px;--radius-xl:36px;--shadow-glow:0 0 50px rgba(124,58,237,0.18);--shadow-card:0 8px 40px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.07);--t:all 0.35s cubic-bezier(0.23,1,0.32,1);--tf:all 0.2s cubic-bezier(0.23,1,0.32,1);--fd:'Syne',sans-serif;--fb:'DM Sans','Hind Siliguri',sans-serif}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg-deep);color:var(--text-1);min-height:100vh;overflow-x:hidden}
+body.lang-bn{font-family:'Hind Siliguri',sans-serif}
+body.lang-zh{font-family:'Noto Sans SC',sans-serif}
+::selection{background:rgba(124,58,237,0.38);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg-deep)}::-webkit-scrollbar-thumb{background:linear-gradient(var(--primary),var(--accent));border-radius:3px}
+
+/* BG */
+.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.bg-grad{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 15% 8%,rgba(124,58,237,.16) 0%,transparent 55%),radial-gradient(ellipse 55% 50% at 85% 85%,rgba(6,182,212,.11) 0%,transparent 55%),radial-gradient(ellipse 45% 40% at 55% 45%,rgba(236,72,153,.07) 0%,transparent 55%),linear-gradient(160deg,#04040f 0%,#070718 40%,#0b0b22 70%,#10092a 100%)}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.45;animation:orbF 22s ease-in-out infinite}
+.o1{width:500px;height:500px;background:radial-gradient(circle,rgba(124,58,237,.5),transparent 70%);top:-120px;left:-120px;animation-duration:23s}
+.o2{width:400px;height:400px;background:radial-gradient(circle,rgba(6,182,212,.38),transparent 70%);bottom:5%;right:-100px;animation-duration:19s;animation-delay:-8s}
+.o3{width:280px;height:280px;background:radial-gradient(circle,rgba(236,72,153,.32),transparent 70%);top:45%;left:42%;animation-duration:26s;animation-delay:-13s}
+.o4{width:240px;height:240px;background:radial-gradient(circle,rgba(245,158,11,.28),transparent 70%);top:65%;left:15%;animation-duration:20s;animation-delay:-5s}
+@keyframes orbF{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(45px,-35px) scale(1.06)}50%{transform:translate(-25px,55px) scale(.94)}75%{transform:translate(-55px,-25px) scale(1.03)}}
+.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:65px 65px}
+#ptcl{position:absolute;inset:0}
+.pt{position:absolute;background:rgba(255,255,255,.35);border-radius:50%;animation:ptF linear infinite}
+@keyframes ptF{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-80px) scale(1);opacity:0}}
+
+/* LANG SWITCHER */
+.lang-sw{position:fixed;top:20px;right:22px;z-index:9999;display:flex;align-items:center;gap:3px;background:var(--glass-bg);backdrop-filter:var(--blur-md);-webkit-backdrop-filter:var(--blur-md);border:1px solid var(--glass-border);border-radius:50px;padding:4px}
+.lb{padding:7px 15px;border-radius:50px;border:none;background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer;transition:var(--tf);letter-spacing:.5px;font-family:inherit}
+.lb:hover{color:var(--text-1)}
+.lb.active{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 2px 14px rgba(124,58,237,.4)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:9000;height:70px;display:flex;align-items:center;padding:0 5%;background:rgba(4,4,15,.55);backdrop-filter:var(--blur-lg);-webkit-backdrop-filter:var(--blur-lg);border-bottom:1px solid var(--glass-border);transition:var(--t)}
+nav.scrolled{background:rgba(4,4,15,.88)}
+.n-logo{display:flex;align-items:center;gap:11px;text-decoration:none;margin-right:auto}
+.n-gem{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:#fff;box-shadow:0 4px 22px rgba(124,58,237,.5),inset 0 1px 0 rgba(255,255,255,.2);position:relative}
+.n-gem::after{content:'';position:absolute;inset:1px;border-radius:11px;border:1px solid rgba(255,255,255,.22)}
+.n-name{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text-1);letter-spacing:-.2px}
+.n-tag{font-size:11px;color:var(--accent);font-weight:500;letter-spacing:.4px}
+.n-links{display:flex;gap:2px;list-style:none;margin-right:20px}
+.n-links a{display:block;padding:8px 15px;text-decoration:none;color:var(--text-2);font-size:13.5px;font-weight:500;border-radius:10px;transition:var(--tf)}
+.n-links a:hover{color:var(--text-1);background:var(--glass-hover)}
+.n-acts{display:flex;gap:9px;align-items:center}
+.btn-g{padding:8px 20px;background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-1);border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:var(--tf);backdrop-filter:blur(8px);font-family:inherit}
+.btn-g:hover{background:var(--glass-hover);border-color:rgba(255,255,255,.18);transform:translateY(-1px)}
+.btn-pg{padding:8px 20px;background:linear-gradient(135deg,var(--primary),#6d28d9);border:1px solid rgba(167,139,250,.28);color:#fff;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:var(--tf);box-shadow:0 4px 20px rgba(124,58,237,.4),inset 0 1px 0 rgba(255,255,255,.15);font-family:inherit}
+.btn-pg:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.58),inset 0 1px 0 rgba(255,255,255,.2)}
+
+/* CONTENT */
+.content{position:relative;z-index:1}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:110px 6% 80px;position:relative;overflow:hidden}
+.hero-in{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;max-width:1280px;margin:0 auto;width:100%}
+.hero-l{animation:hFI 1s cubic-bezier(0.23,1,0.32,1) forwards}
+@keyframes hFI{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.h-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:50px;background:rgba(124,58,237,.14);border:1px solid rgba(124,58,237,.28);font-size:12px;font-weight:600;color:var(--primary-light);margin-bottom:26px;letter-spacing:.5px;text-transform:uppercase}
+.bdot{width:6px;height:6px;background:var(--accent3);border-radius:50%;box-shadow:0 0 8px var(--accent3);animation:bdP 2s ease-in-out infinite}
+@keyframes bdP{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+.h-title{font-family:'Syne',sans-serif;font-size:clamp(38px,5.5vw,70px);font-weight:800;line-height:1.1;margin-bottom:26px;letter-spacing:-2px}
+.h-title .l1{color:var(--text-1);display:block}
+.h-title .l2{display:block;background:linear-gradient(135deg,var(--primary-light) 0%,var(--accent) 50%,var(--accent3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(124,58,237,.35))}
+.h-title .l3{color:var(--text-2);display:block;font-weight:400;font-size:.52em;letter-spacing:-.5px;margin-top:5px}
+.h-desc{font-size:16.5px;color:var(--text-2);line-height:1.82;margin-bottom:40px;max-width:475px}
+.h-stats{display:flex;gap:0;margin-bottom:40px;background:var(--glass-card);border:1px solid var(--glass-border);border-radius:var(--radius-md);overflow:hidden;backdrop-filter:var(--blur-sm)}
+.h-stat{flex:1;padding:18px 22px;text-align:center;border-right:1px solid var(--glass-border);transition:var(--tf)}
+.h-stat:last-child{border-right:none}
+.h-stat:hover{background:var(--glass-hover)}
+.sval{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;line-height:1;margin-bottom:3px}
+.slbl{font-size:11.5px;color:var(--text-3);font-weight:500;letter-spacing:.5px}
+.h-btns{display:flex;gap:13px}
+.btn-hp{padding:15px 34px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border-radius:var(--radius-sm);text-decoration:none;font-weight:700;font-size:15px;transition:var(--t);box-shadow:0 8px 32px rgba(124,58,237,.45),inset 0 1px 0 rgba(255,255,255,.2);border:1px solid rgba(167,139,250,.28);display:inline-flex;align-items:center;gap:7px;font-family:inherit}
+.btn-hp:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(124,58,237,.6)}
+.btn-hs{padding:15px 34px;background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-1);border-radius:var(--radius-sm);text-decoration:none;font-weight:600;font-size:15px;transition:var(--t);backdrop-filter:blur(8px);display:inline-flex;align-items:center;gap:7px;font-family:inherit}
+.btn-hs:hover{background:var(--glass-hover);border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
+
+/* HERO RIGHT */
+.hero-r{animation:hRI 1.1s cubic-bezier(0.23,1,0.32,1) .2s both}
+@keyframes hRI{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+.gstack{position:relative}
+.gpanel{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-xl);backdrop-filter:var(--blur-lg);-webkit-backdrop-filter:var(--blur-lg);padding:32px;box-shadow:var(--shadow-card);position:relative;overflow:hidden}
+.gpanel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
+.plbl{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:15px;display:flex;align-items:center;gap:7px}
+.plbl::before{content:'';display:inline-block;width:14px;height:2px;background:var(--accent);border-radius:2px}
+.ptitle{font-family:'Syne',sans-serif;font-size:21px;font-weight:700;color:var(--text-1);margin-bottom:9px}
+.pdesc{font-size:13.5px;color:var(--text-2);line-height:1.7;margin-bottom:22px}
+.ptrack{background:rgba(255,255,255,.08);border-radius:50px;height:5px;margin-bottom:5px;overflow:hidden}
+.pfill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--primary),var(--accent));box-shadow:0 0 10px rgba(124,58,237,.45);animation:pfI 1.5s ease 1s both}
+@keyframes pfI{from{width:0!important}}
+.pfoot{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-3)}
+.avrow{display:flex;align-items:center;gap:10px;margin-top:18px}
+.avs{display:flex}
+.av{width:29px;height:29px;border-radius:50%;border:2px solid rgba(255,255,255,.13);margin-left:-7px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}
+.av:first-child{margin-left:0}
+.av1{background:linear-gradient(135deg,#7c3aed,#06b6d4)}.av2{background:linear-gradient(135deg,#ec4899,#f59e0b)}.av3{background:linear-gradient(135deg,#10b981,#3b82f6)}.av4{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.avtxt{font-size:12px;color:var(--text-2)}
+.avst strong{color:var(--text-1)}
+.fcard{position:absolute;background:var(--glass-strong);border:1px solid rgba(255,255,255,.16);border-radius:var(--radius-md);backdrop-filter:var(--blur-md);-webkit-backdrop-filter:var(--blur-md);padding:14px 18px;animation:fcF 5s ease-in-out infinite;box-shadow:0 8px 30px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.09);z-index:5}
+.fc1{top:-22px;right:-28px;animation-delay:0s}.fc2{bottom:-22px;left:-28px;animation-delay:-2.5s}
+@keyframes fcF{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.fci{font-size:22px;margin-bottom:3px}.fcv{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text-1)}.fcl{font-size:11px;color:var(--text-3)}
+
+/* SECTION BASE */
+.sec{padding:96px 6%;position:relative}
+.sec-eye{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--accent);text-align:center;margin-bottom:11px}
+.sec-h{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,46px);font-weight:800;text-align:center;color:var(--text-1);margin-bottom:14px;letter-spacing:-1.5px;line-height:1.15}
+.sec-h .gr{background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sec-sub{text-align:center;color:var(--text-2);font-size:15.5px;max-width:540px;margin:0 auto 56px;line-height:1.78}
+
+/* FILTER */
+.filters{display:flex;justify-content:center;gap:7px;margin-bottom:44px;flex-wrap:wrap}
+.fp{padding:7px 18px;border-radius:50px;border:1px solid var(--glass-border);background:var(--glass-card);color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;transition:var(--tf);backdrop-filter:blur(8px);font-family:inherit}
+.fp:hover{color:var(--text-1);border-color:rgba(255,255,255,.18)}
+.fp.active{background:linear-gradient(135deg,var(--primary),var(--accent));border-color:transparent;color:#fff;box-shadow:0 4px 20px rgba(124,58,237,.4)}
+
+/* COURSES GRID */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:22px;max-width:1280px;margin:0 auto}
+
+/* COURSE CARD */
+.cc{background:var(--glass-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);overflow:hidden;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:var(--t);box-shadow:0 4px 24px rgba(0,0,0,.25);position:relative;cursor:pointer}
+.cc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent);z-index:1}
+.cc:hover{transform:translateY(-10px);border-color:rgba(124,58,237,.38);box-shadow:0 22px 60px rgba(0,0,0,.4),0 0 0 1px rgba(124,58,237,.18),var(--shadow-glow)}
+.cthumb{height:185px;position:relative;overflow:hidden}
+.cv{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:68px;position:relative}
+.cv::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(4,4,15,.78) 100%)}
+.cbadges{position:absolute;top:13px;left:13px;display:flex;gap:5px;z-index:2}
+.badge{padding:4px 11px;border-radius:50px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;backdrop-filter:blur(8px)}
+.bf{background:rgba(239,68,68,.78);color:#fff;border:1px solid rgba(239,68,68,.45)}
+.bs{background:rgba(245,158,11,.78);color:#fff;border:1px solid rgba(245,158,11,.45)}
+.bn2{background:rgba(16,185,129,.78);color:#fff;border:1px solid rgba(16,185,129,.45)}
+.bfr{background:rgba(99,102,241,.78);color:#fff;border:1px solid rgba(99,102,241,.45)}
+.clvl{position:absolute;top:13px;right:13px;background:rgba(4,4,15,.62);color:var(--text-2);padding:4px 10px;border-radius:8px;font-size:10px;font-weight:600;backdrop-filter:blur(8px);border:1px solid var(--glass-border);z-index:2}
+.cbody{padding:22px}
+.ccat{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.ctit{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text-1);margin-bottom:9px;line-height:1.3}
+.cdesc{font-size:13px;color:var(--text-3);line-height:1.65;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cmeta{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.cm{font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:4px}
+.cfoot{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--glass-border)}
+.cprice{display:flex;align-items:baseline;gap:7px}
+.pn{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pw{font-size:13px;color:var(--text-3);text-decoration:line-through}
+.btn-ec{padding:9px 20px;background:linear-gradient(135deg,var(--primary),#6d28d9);color:#fff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;transition:var(--tf);box-shadow:0 4px 16px rgba(124,58,237,.35);border:1px solid rgba(167,139,250,.2);font-family:inherit;cursor:pointer;position:relative;overflow:hidden}
+.btn-ec:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 24px rgba(124,58,237,.5)}
+
+/* FEATURES */
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1100px;margin:0 auto}
+.fcard2{background:var(--glass-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:30px 26px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:var(--t);position:relative;overflow:hidden}
+.fcard2::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.11),transparent)}
+.fcard2:hover{background:var(--glass-hover);border-color:rgba(124,58,237,.28);transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.3),0 0 0 1px rgba(124,58,237,.13)}
+.fglow{position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;opacity:.13;filter:blur(30px);transition:var(--t)}
+.fcard2:hover .fglow{opacity:.32}
+.fiw{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:25px;margin-bottom:20px;position:relative;z-index:1}
+.ftit{font-family:'Syne',sans-serif;font-size:16.5px;font-weight:700;color:var(--text-1);margin-bottom:9px;position:relative;z-index:1}
+.fdesc{font-size:13.5px;color:var(--text-3);line-height:1.76;position:relative;z-index:1}
+
+/* TESTI */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1100px;margin:0 auto}
+.tcard{background:var(--glass-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:28px;backdrop-filter:blur(14px);transition:var(--t);position:relative}
+.tcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent)}
+.tcard:hover{border-color:rgba(124,58,237,.22);transform:translateY(-5px);box-shadow:0 18px 42px rgba(0,0,0,.3)}
+.tstars{font-size:14px;margin-bottom:14px;letter-spacing:2px}
+.tq{font-size:13.5px;color:var(--text-2);line-height:1.8;margin-bottom:20px;font-style:italic}
+.tau{display:flex;align-items:center;gap:11px}
+.tav{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex-shrink:0;border:2px solid var(--glass-border)}
+.tn{font-weight:700;font-size:14px;color:var(--text-1)}.tr{font-size:12px;color:var(--text-3);margin-top:2px}
+
+/* INSTRUCTOR */
+.iglass{max-width:880px;margin:0 auto;background:var(--glass-card);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:52px 56px;display:flex;gap:52px;align-items:center;backdrop-filter:blur(16px);position:relative;overflow:hidden}
+.iglass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
+.iglass::after{content:'';position:absolute;bottom:-100px;right:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(124,58,237,.13),transparent 70%);pointer-events:none}
+.iav{width:155px;height:155px;border-radius:26px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:70px;box-shadow:0 20px 50px rgba(124,58,237,.33),inset 0 1px 0 rgba(255,255,255,.13);border:1px solid rgba(167,139,250,.28);position:relative;flex-shrink:0}
+.iring{position:absolute;inset:-6px;border-radius:32px;border:2px solid transparent;background:linear-gradient(135deg,var(--primary),var(--accent)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude;animation:rP 3s ease-in-out infinite}
+@keyframes rP{0%,100%{opacity:.35}50%{opacity:1}}
+.iname{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text-1);margin-bottom:6px;letter-spacing:-.4px}
+.itag{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(6,182,212,.14);border:1px solid rgba(6,182,212,.28);border-radius:50px;font-size:12px;font-weight:600;color:var(--accent);margin-bottom:16px}
+.ibio{font-size:14.5px;color:var(--text-2);line-height:1.82;margin-bottom:26px}
+.istats{display:flex;gap:0;background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:var(--radius-md);overflow:hidden}
+.ist{flex:1;padding:14px 18px;text-align:center;border-right:1px solid var(--glass-border)}
+.ist:last-child{border-right:none}
+.isv{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block}
+.isl{font-size:11px;color:var(--text-3);letter-spacing:.4px}
+
+/* CTA */
+.cta-sec{padding:96px 6%}
+.cta-g{max-width:880px;margin:0 auto;background:linear-gradient(135deg,rgba(124,58,237,.14),rgba(6,182,212,.09));border:1px solid rgba(124,58,237,.28);border-radius:var(--radius-xl);padding:68px 76px;text-align:center;backdrop-filter:blur(16px);position:relative;overflow:hidden;box-shadow:0 0 80px rgba(124,58,237,.13),inset 0 1px 0 rgba(255,255,255,.07)}
+.cta-g::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.38),transparent)}
+.corb{position:absolute;width:330px;height:330px;background:radial-gradient(circle,rgba(124,58,237,.18),transparent 70%);border-radius:50%;top:-100px;right:-80px;filter:blur(30px);pointer-events:none}
+.cta-g h2{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,42px);font-weight:800;color:var(--text-1);margin-bottom:14px;letter-spacing:-1.5px;position:relative;z-index:1}
+.cta-g p{font-size:16px;color:var(--text-2);margin-bottom:40px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.78;position:relative;z-index:1}
+.cbtns{display:flex;gap:13px;justify-content:center;position:relative;z-index:1}
+.btn-cm{padding:16px 46px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border-radius:var(--radius-md);text-decoration:none;font-weight:800;font-size:15.5px;transition:var(--t);box-shadow:0 8px 32px rgba(124,58,237,.48),inset 0 1px 0 rgba(255,255,255,.18);border:1px solid rgba(167,139,250,.28);display:inline-flex;align-items:center;gap:7px;font-family:inherit}
+.btn-cm:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(124,58,237,.62)}
+
+/* FOOTER */
+footer{padding:66px 6% 32px;border-top:1px solid var(--glass-border);background:rgba(4,4,15,.78);backdrop-filter:blur(8px);position:relative;z-index:1}
+.fgridf{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:44px;margin-bottom:50px;max-width:1280px;margin-left:auto;margin-right:auto}
+.fbdesc{font-size:13.5px;color:var(--text-3);line-height:1.82;margin-top:16px;max-width:270px}
+.fsocs{display:flex;gap:9px;margin-top:20px}
+.fsoc{width:37px;height:37px;background:var(--glass-card);border:1px solid var(--glass-border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;text-decoration:none;transition:var(--tf);color:var(--text-2)}
+.fsoc:hover{background:var(--glass-hover);border-color:rgba(124,58,237,.38);transform:translateY(-2px)}
+.fcol h4{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text-1);margin-bottom:18px;letter-spacing:.2px}
+.fcol ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.fcol ul li a{text-decoration:none;color:var(--text-3);font-size:13px;transition:var(--tf);display:inline-flex;align-items:center;gap:5px}
+.fcol ul li a:hover{color:var(--primary-light);transform:translateX(3px)}
+.fbot{display:flex;justify-content:space-between;align-items:center;padding-top:26px;border-top:1px solid var(--glass-border);font-size:12.5px;color:var(--text-3);max-width:1280px;margin:0 auto}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s cubic-bezier(0.23,1,0.32,1)}
+.rv.in{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}.d5{transition-delay:.5s}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.hero{padding:96px 4% 60px}.hero-in{gap:48px}.sec{padding:76px 4%}.fgrid{grid-template-columns:repeat(2,1fr)}.tgrid{grid-template-columns:repeat(2,1fr)}.fgridf{grid-template-columns:1fr 1fr;gap:32px}.cta-g{padding:50px 44px}.cta-sec{padding:76px 4%}footer{padding:56px 4% 28px}}
+@media(max-width:768px){nav{padding:0 5%}.n-links{display:none}.hero{padding:88px 5% 56px}.hero-in{grid-template-columns:1fr}.hero-r{display:none}.h-title{font-size:36px}.sec{padding:58px 5%}.cgrid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:1fr}.iglass{flex-direction:column;text-align:center;padding:34px 26px;gap:32px}.fgridf{grid-template-columns:1fr}footer{padding:44px 5% 24px}.cta-g{padding:44px 26px}.cbtns{flex-direction:column;align-items:center}.lang-sw{top:76px;right:14px}}
+</style>
+</head>
+<body class="lang-bn">
+
+<!-- BG -->
+<div class="bg-canvas">
+  <div class="bg-grad"></div>
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
+  <div class="grid-lines"></div>
+  <div id="ptcl"></div>
+</div>
+
+<!-- LANG SWITCHER -->
+<div class="lang-sw">
+  <button class="lb active" onclick="setLang('bn',this)">বাংলা</button>
+  <button class="lb" onclick="setLang('en',this)">EN</button>
+  <button class="lb" onclick="setLang('zh',this)">中文</button>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="n-logo">
+    <div class="n-gem">R</div>
+    <div>
+      <div class="n-name">Reduan's Method</div>
+      <div class="n-tag" data-bn="স্মার্টলি শিখুন ইংরেজি" data-en="Learn English the Smart Way" data-zh="智能学英语">স্মার্টলি শিখুন ইংরেজি</div>
+    </div>
+  </a>
+  <ul class="n-links">
+    <li><a href="#courses" data-bn="কোর্সসমূহ" data-en="Courses" data-zh="课程">কোর্সসমূহ</a></li>
+    <li><a href="#why" data-bn="কেন আমরা?" data-en="Why Us?" data-zh="为什么我们?">কেন আমরা?</a></li>
+    <li><a href="#testi" data-bn="রিভিউ" data-en="Reviews" data-zh="评价">রিভিউ</a></li>
+    <li><a href="#inst" data-bn="ইন্সট্রাক্টর" data-en="Instructor" data-zh="讲师">ইন্সট্রাক্টর</a></li>
+  </ul>
+  <div class="n-acts">
+    <a href="#" class="btn-g" data-bn="লগইন" data-en="Login" data-zh="登录">লগইন</a>
+    <a href="#courses" class="btn-pg" data-bn="🚀 এনরোল করুন" data-en="🚀 Enroll Now" data-zh="🚀 立即报名">🚀 এনরোল করুন</a>
+  </div>
+</nav>
+
+<div class="content">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-in">
+    <div class="hero-l">
+      <div class="h-badge">
+        <span class="bdot"></span>
+        <span data-bn="🇧🇩 বাংলাদেশের #১ ইংলিশ প্ল্যাটফর্ম" data-en="🇧🇩 Bangladesh's #1 English Platform" data-zh="🇧🇩 孟加拉国第一英语平台">🇧🇩 বাংলাদেশের #১ ইংলিশ প্ল্যাটফর্ম</span>
+      </div>
+      <h1 class="h-title">
+        <span class="l1" data-bn="ইংরেজি শিখুন" data-en="Master English" data-zh="掌握英语">ইংরেজি শিখুন</span>
+        <span class="l2" data-bn="Reduan's Method" data-en="Reduan's Method" data-zh="瑞德万教学法">Reduan's Method</span>
+        <span class="l3" data-bn="— স্মার্টলি, দ্রুত ও আত্মবিশ্বাসের সাথে" data-en="— Smartly, Quickly & Confidently" data-zh="— 聪明、快速、自信地学习">— স্মার্টলি, দ্রুত ও আত্মবিশ্বাসের সাথে</span>
+      </h1>
+      <p class="h-desc" data-bn="সহজ পদ্ধতিতে, নিজের গতিতে ইংরেজি শিখুন। Spoken, Grammar, IELTS সহ ২০+ কোর্স এখন বাংলা, English ও 中文-এ।" data-en="Learn English at your own pace with proven methods. 20+ courses in Spoken, Grammar, IELTS — now in 3 languages." data-zh="用简单方法按自己节奏学习英语。20多门课程，支持孟加拉语、英语和中文。">সহজ পদ্ধতিতে, নিজের গতিতে ইংরেজি শিখুন। Spoken, Grammar, IELTS সহ ২০+ কোর্স এখন বাংলা, English ও 中文-এ।</p>
+      <div class="h-stats">
+        <div class="h-stat"><span class="sval">৫০K+</span><span class="slbl" data-bn="শিক্ষার্থী" data-en="Students" data-zh="学生">শিক্ষার্থী</span></div>
+        <div class="h-stat"><span class="sval">২০+</span><span class="slbl" data-bn="কোর্স" data-en="Courses" data-zh="课程">কোর্স</span></div>
+        <div class="h-stat"><span class="sval">৯৮%</span><span class="slbl" data-bn="সন্তুষ্টি" data-en="Satisfaction" data-zh="满意度">সন্তুষ্টি</span></div>
+        <div class="h-stat"><span class="sval">৪.৯★</span><span class="slbl" data-bn="রেটিং" data-en="Rating" data-zh="评分">রেটিং</span></div>
+      </div>
+      <div class="h-btns">
+        <a href="#courses" class="btn-hp" data-bn="🚀 কোর্স দেখুন" data-en="🚀 Explore Courses" data-zh="🚀 浏览课程">🚀 কোর্স দেখুন</a>
+        <a href="#why" class="btn-hs" data-bn="▶ কিভাবে কাজ করে" data-en="▶ How It Works" data-zh="▶ 如何运作">▶ কিভাবে কাজ করে</a>
+      </div>
+    </div>
+    <div class="hero-r">
+      <div class="gstack">
+        <div class="fcard fc1"><div class="fci">🏆</div><div class="fcv">৭.৫</div><div class="fcl">IELTS Band</div></div>
+        <div class="fcard fc2"><div class="fci">⚡</div><div class="fcv">3 Mo.</div><div class="fcl">Fluency Goal</div></div>
+        <div class="gpanel">
+          <div class="plbl">LIVE NOW</div>
+          <div class="ptitle" data-bn="Complete Spoken English" data-en="Complete Spoken English" data-zh="完整口语英语">Complete Spoken English</div>
+          <div class="pdesc" data-bn="৩ মাসে ফ্লুয়েন্ট ইংলিশ স্পিকার হওয়ার সম্পূর্ণ গাইড। ৫০+ HD ভিডিও লেসন।" data-en="Complete guide to fluency in 3 months. 50+ HD video lessons included." data-zh="3个月成为流利英语讲者的完整指南。包含50多个高清视频课。">৩ মাসে ফ্লুয়েন্ট ইংলিশ স্পিকার হওয়ার সম্পূর্ণ গাইড। ৫০+ HD ভিডিও লেসন।</div>
+          <div class="ptrack"><div class="pfill" style="width:72%"></div></div>
+          <div class="pfoot"><span data-bn="কোর্স অগ্রগতি" data-en="Course Progress" data-zh="课程进度">কোর্স অগ্রগতি</span><span>72%</span></div>
+          <div class="avrow">
+            <div class="avs">
+              <div class="av av1">র</div><div class="av av2">স</div><div class="av av3">ম</div><div class="av av4">+</div>
+            </div>
+            <div class="avtxt"><strong>১২,৪৫০+</strong><span data-bn=" জন শিখছেন" data-en=" enrolled" data-zh=" 名学员"> জন শিখছেন</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COURSES -->
+<section class="sec" id="courses">
+  <div class="sec-eye" data-bn="📚 আমাদের কোর্সসমূহ" data-en="📚 Our Courses" data-zh="📚 我们的课程">📚 আমাদের কোর্সসমূহ</div>
+  <h2 class="sec-h rv" data-bn="আপনার <span class='gr'>পছন্দের কোর্স</span> বেছে নিন" data-en="Choose Your <span class='gr'>Perfect Course</span>" data-zh="选择您的<span class='gr'>理想课程</span>">আপনার <span class="gr">পছন্দের কোর্স</span> বেছে নিন</h2>
+  <p class="sec-sub rv" data-bn="বিশেষজ্ঞ ইন্সট্রাক্টরের তত্ত্বাবধানে তৈরি প্রতিটি কোর্স আপনার ইংরেজি শেখার যাত্রাকে সহজ ও আনন্দময় করে তুলবে।" data-en="Every course crafted by expert instructors to make your English learning journey easy and enjoyable." data-zh="每门课程由专家讲师精心制作，让您的英语学习之旅轻松愉快。">বিশেষজ্ঞ ইন্সট্রাক্টরের তত্ত্বাবধানে তৈরি প্রতিটি কোর্স আপনার ইংরেজি শেখার যাত্রাকে সহজ ও আনন্দময় করে তুলবে।</p>
+  <div class="filters rv">
+    <button class="fp active" data-bn="সব কোর্স" data-en="All Courses" data-zh="全部课程">সব কোর্স</button>
+    <button class="fp" data-bn="Spoken" data-en="Spoken" data-zh="口语">Spoken</button>
+    <button class="fp" data-bn="Grammar" data-en="Grammar" data-zh="语法">Grammar</button>
+    <button class="fp" data-bn="IELTS" data-en="IELTS" data-zh="雅思">IELTS</button>
+    <button class="fp" data-bn="Business" data-en="Business" data-zh="商务">Business</button>
+    <button class="fp" data-bn="ফ্রি" data-en="Free" data-zh="免费">ফ্রি</button>
+  </div>
+  <div class="cgrid">
+
+    <div class="cc rv">
+      <div class="cthumb"><div class="cv" style="background:linear-gradient(135deg,#1a0a3c,#3b1a78,#1a3a5c)">🗣️</div>
+        <div class="cbadges"><span class="badge bf" data-bn="🔥 বেস্টসেলার" data-en="🔥 Bestseller" data-zh="🔥 畅销">🔥 বেস্টসেলার</span></div>
+        <div class="clvl" data-bn="সকল স্তর" data-en="All Levels" data-zh="全级别">সকল স্তর</div>
+      </div>
+      <div class="cbody">
+        <div class="ccat">Spoken English</div>
+        <div class="ctit" data-bn="Complete Spoken English Course" data-en="Complete Spoken English Course" data-zh="完整口语英语课程">Complete Spoken English Course</div>
+        <div class="cdesc" data-bn="ঘরে বসে ফ্লুয়েন্টলি ইংরেজিতে কথা বলা শিখুন। ৫০+ ভিডিও লেসন, লাইভ ক্লাস ও প্র্যাকটিস সেশন।" data-en="Learn to speak English fluently from home. 50+ video lessons, live classes & practice sessions." data-zh="在家学习流利说英语。50多个视频课、直播课和练习课。">ঘরে বসে ফ্লুয়েন্টলি ইংরেজিতে কথা বলা শিখুন।</div>
+        <div class="cmeta"><span class="cm">⏱ <span data-bn="৩০+ ঘণ্টা" data-en="30+ Hours" data-zh="30+小时">৩০+ ঘণ্টা</span></span><span class="cm">👥 ১২,৪৫০+</span><span class="cm">📹 <span data-bn="৫০+ লেসন" data-en="50+ Lessons" data-zh="50+课时">৫০+ লেসন</span></span></div>
+        <div class="cfoot"><div class="cprice"><span class="pn">৳১,৫০০</span><span class="pw">৳৩,০০০</span></div><button class="btn-ec" data-bn="এনরোল করুন" data-en="Enroll Now" data-zh="立即报名">এনরোল করুন</button></div>
+      </div>
+    </div>
+
+    <div class="cc rv d1">
+      <div class="cthumb"><div class="cv" style="background:linear-gradient(135deg,#1a0a2e,#6b21a8,#be185d)">✍️</div>
+        <div class="cbadges"><span class="badge bs" data-bn="⭐ জনপ্রিয়" data-en="⭐ Popular" data-zh="⭐ 热门">⭐ জনপ্রিয়</span></div>
+        <div class="clvl" data-bn="বিগেনার" data-en="Beginner" data-zh="初级">বিগেনার</div>
+      </div>
+      <div class="cbody">
+        <div class="ccat">Grammar</div>
+        <div class="ctit" data-bn="English Grammar Zero to Hero" data-en="English Grammar Zero to Hero" data-zh="英语语法零到英雄">English Grammar Zero to Hero</div>
+        <div class="cdesc" data-bn="একদম শূন্য থেকে Advanced Grammar পর্যন্ত সম্পূর্ণ গ্রামার শিখুন বাংলায়।" data-en="Complete grammar from absolute zero to advanced level, explained simply." data-zh="从零开始学完整语法，直到高级水平。">একদম শূন্য থেকে Advanced Grammar পর্যন্ত সম্পূর্ণ গ্রামার শিখুন।</div>
+        <div class="cmeta"><span class="cm">⏱ <span data-bn="২৫+ ঘণ্টা" data-en="25+ Hours" data-zh="25+小时">২৫+ ঘণ্টা</span></span><span class="cm">👥 ৯,২০০+</span><span class="cm">📹 <span data-bn="৮০+ লেসন" data-en="80+ Lessons" data-zh="80+课时">৮০+ লেসন</span></span></div>
+        <div class="cfoot"><div class="cprice"><span class="pn">৳১,২০০</span><span class="pw">৳২,৫০০</span></div><button class="btn-ec" data-bn="এনরোল করুন" data-en="Enroll Now" data-zh="立即报名">এনরোল করুন</button></div>
+      </div>
+    </div>
+
+    <div class="cc rv d2">
+      <div class="cthumb"><div class="cv" style="background:linear-gradient(135deg,#0c1a3a,#1e40af,#0891b2)">🎓</div>
+        <div class="cbadges"><span class="badge bn2" data-bn="🆕 নতুন" data-en="🆕 New" data-zh="🆕 新课">🆕 নতুন</span></div>
+        <div class="clvl">Advanced</div>
+      </div>
+      <div class="cbody">
+        <div class="ccat">IELTS</div>
+        <div class="ctit" data-bn="IELTS Complete Preparation" data-en="IELTS Complete Preparation" data-zh="雅思全面备考">IELTS Complete Preparation</div>
+        <div class="cdesc" data-bn="IELTS-এ ৭+ ব্যান্ড স্কোর অর্জনের জন্য সম্পূর্ণ প্রস্তুতি — সব ৪টি Skills।" data-en="Complete IELTS prep for 7+ band score — all 4 skills covered." data-zh="雅思全面备考，获得7分以上——涵盖四项技能。">IELTS-এ ৭+ ব্যান্ড স্কোর অর্জনের জন্য সম্পূর্ণ প্রস্তুতি।</div>
+        <div class="cmeta"><span class="cm">⏱ <span data-bn="৪০+ ঘণ্টা" data-en="40+ Hours" data-zh="40+小时">৪০+ ঘণ্টা</span></span><span class="cm">👥 ৬,৮০০+</span><span class="cm">📹 <span data-bn="১০০+ লেসন" data-en="100+ Lessons" data-zh="100+课时">১০০+ লেসন</span></span></div>
+        <div class="cfoot"><div class="cprice"><span class="pn">৳২,৫০০</span><span class="pw">৳৫,০০০</span></div><button class="btn-ec" data-bn="এনরোল করুন" data-en="Enroll Now" data-zh="立即报名">এনরোল করুন</button></div>
+      </div>
+    </div>
+
+    <div class="cc rv">
+      <div class="cthumb"><div class="cv" style="background:linear-gradient(135deg,#0a2010,#065f46,#047857)">💼</div>
+        <div class="cbadges"><span class="badge bf" data-bn="🔥 ট্রেন্ডিং" data-en="🔥 Trending" data-zh="🔥 热门趋势">🔥 ট্রেন্ডিং</span></div>
+        <div class="clvl" data-bn="মধ্যম স্তর" data-en="Intermediate" data-zh="中级">মধ্যম স্তর</div>
+      </div>
+      <div class="cbody">
+        <div class="ccat" data-bn="Business English" data-en="Business English" data-zh="商务英语">Business English</div>
+        <div class="ctit" data-bn="Professional Business English" data-en="Professional Business English" data-zh="专业商务英语">Professional Business English</div>
+        <div class="cdesc" data-bn="অফিসে, ইন্টারভিউতে এবং ব্যবসায়িক মিটিংয়ে আত্মবিশ্বাসের সাথে ইংরেজি বলুন।" data-en="Speak confidently in offices, interviews, and business meetings." data-zh="在办公室、面试和商务会议中自信地说英语。">অফিসে, ইন্টারভিউতে আত্মবিশ্বাসের সাথে ইংরেজি বলুন।</div>
+        <div class="cmeta"><span class="cm">⏱ <span data-bn="২০+ ঘণ্টা" data-en="20+ Hours" data-zh="20+小时">২০+ ঘণ্টা</span></span><span class="cm">👥 ৭,৫০০+</span><span class="cm">📹 <span data-bn="৬০+ লেসন" data-en="60+ Lessons" data-zh="60+课时">৬০+ লেসন</span></span></div>
+        <div class="cfoot"><div class="cprice"><span class="pn">৳১,৮০০</span><span class="pw">৳৩,৫০০</span></div><button class="btn-ec" data-bn="এনরোল করুন" data-en="Enroll Now" data-zh="立即报名">এনরোল করুন</button></div>
+      </div>
+    </div>
+
+    <div class="cc rv d1">
+      <div class="cthumb"><div class="cv" style="background:linear-gradient(135deg,#1a0a0a,#991b1b,#c2410c)">📖</div>
+        <div class="cbadges"><span class="badge bfr" data-bn="🆓 ফ্রি" data-en="🆓 Free" data-zh="🆓 免费">🆓 ফ্রি</span></div>
+        <div class="clvl" data-bn="বিগেনার" data-en="Beginner" data-zh="初级">বিগেনার</div>
+      </div>
+      <div class="cbody">
+        <div class="ccat" data-bn="Basic English" data-en="Basic English" data-zh="基础英语">Basic English</div>
+        <div class="ctit" data-bn="ইংরেজি বর্ণমালা থেকে শুরু" data-en="English from Scratch" data-zh="从英语字母开始">ইংরেজি বর্ণমালা থেকে শুরু</div>
+        <div class="cdesc" data-bn="Alphabet, Vocabulary, Basic Sentences — একদম শুরু থেকে ইংরেজি শিখুন সম্পূর্ণ ফ্রিতে।" data-en="Alphabet, Vocabulary, Basic Sentences — learn English from scratch for free." data-zh="字母、词汇、基础句型——从零开始免费学英语。">Alphabet, Vocabulary, Basic Sentences — সম্পূর্ণ ফ্রিতে।</div>
+        <div class="cmeta"><span class="cm">⏱ <span data-bn="১০+ ঘণ্টা" data-en="10+ Hours" data-zh="10+小时">১০+ ঘণ্টা</span></span><span class="cm">👥 ১৫,০০০+</span><span class="cm">📹 <span data-bn="৩০+ লেসন" data-en="30+ Lessons" data-zh="30+课时">৩০+ লেসন</span></span></div>
+        <div class="cfoot"><div class="cprice"><span class="pn" data-bn="সম্পূর্ণ ফ্রি" data-en="100% Free" data-zh="完全免费">সম্পূর্ণ ফ্রি</span></div><button class="btn-ec" data-bn="শুরু করুন" data-en="Start Free" data-zh="免费开始">শুরু করুন</button></div>
+      </div>
+    </div>
+
+    <div class="cc rv d2">
+      <div class="cthumb"><div class="cv" style="background:linear-gradient(135deg,#0a0a2a,#4c1d95,#6d28d9)">🎤</div>
+        <div class="cbadges"><span class="badge bn2" data-bn="✨ নতুন" data-en="✨ New" data-zh="✨ 新课">✨ নতুন</span></div>
+        <div class="clvl" data-bn="সকল স্তর" data-en="All Levels" data-zh="全级别">সকল স্তর</div>
+      </div>
+      <div class="cbody">
+        <div class="ccat" data-bn="Pronunciation" data-en="Pronunciation" data-zh="发音">Pronunciation</div>
+        <div class="ctit" data-bn="Perfect English Pronunciation" data-en="Perfect English Pronunciation" data-zh="完美英语发音">Perfect English Pronunciation</div>
+        <div class="cdesc" data-bn="American ও British উচ্চারণ শিখুন। IPA শিখে নেটিভের মতো কথা বলুন।" data-en="Master American & British pronunciation. Learn IPA and speak like a native." data-zh="掌握美式和英式发音，学习IPA，说话像母语者。">American ও British উচ্চারণ শিখে নেটিভের মতো কথা বলুন।</div>
+        <div class="cmeta"><span class="cm">⏱ <span data-bn="১৫+ ঘণ্টা" data-en="15+ Hours" data-zh="15+小时">১৫+ ঘণ্টা</span></span><span class="cm">👥 ৪,৩০০+</span><span class="cm">📹 <span data-bn="৪৫+ লেসন" data-en="45+ Lessons" data-zh="45+课时">৪৫+ লেসন</span></span></div>
+        <div class="cfoot"><div class="cprice"><span class="pn">৳৯৯৯</span><span class="pw">৳২,০০০</span></div><button class="btn-ec" data-bn="এনরোল করুন" data-en="Enroll Now" data-zh="立即报名">এনরোল করুন</button></div>
+      </div>
+    </div>
+
+    <div class="cc rv">
+      <div class="cthumb"><div class="cv" style="background:linear-gradient(135deg,#1a1000,#92400e,#b45309)">✏️</div>
+        <div class="cbadges"><span class="badge bs" data-bn="⭐ জনপ্রিয়" data-en="⭐ Popular" data-zh="⭐ 热门">⭐ জনপ্রিয়</span></div>
+        <div class="clvl" data-bn="মধ্যম স্তর" data-en="Intermediate" data-zh="中级">মধ্যম স্তর</div>
+      </div>
+      <div class="cbody">
+        <div class="ccat" data-bn="Writing" data-en="Writing" data-zh="写作">Writing</div>
+        <div class="ctit" data-bn="English Writing Masterclass" data-en="English Writing Masterclass" data-zh="英语写作大师班">English Writing Masterclass</div>
+        <div class="cdesc" data-bn="Essay, Letter, Email, Report লেখা শিখুন প্রফেশনাল মানের। পরীক্ষা ও চাকরির জন্য পারফেক্ট।" data-en="Write professional essays, letters, emails and reports. Perfect for exams & jobs." data-zh="写专业文章、信件、邮件和报告，适合考试和工作。">Essay, Letter, Email লেখা শিখুন প্রফেশনাল মানের।</div>
+        <div class="cmeta"><span class="cm">⏱ <span data-bn="১৮+ ঘণ্টা" data-en="18+ Hours" data-zh="18+小时">১৮+ ঘণ্টা</span></span><span class="cm">👥 ৫,৬০০+</span><span class="cm">📹 <span data-bn="৫৫+ লেসন" data-en="55+ Lessons" data-zh="55+课时">৫৫+ লেসন</span></span></div>
+        <div class="cfoot"><div class="cprice"><span class="pn">৳১,৪০০</span><span class="pw">৳২,৮০০</span></div><button class="btn-ec" data-bn="এনরোল করুন" data-en="Enroll Now" data-zh="立即报名">এনরোল করুন</button></div>
+      </div>
+    </div>
+
+    <div class="cc rv d1">
+      <div class="cthumb"><div class="cv" style="background:linear-gradient(135deg,#0a1a2a,#155e75,#0e7490)">🌐</div>
+        <div class="cbadges"><span class="badge bf" data-bn="🔥 বেস্টসেলার" data-en="🔥 Bestseller" data-zh="🔥 畅销">🔥 বেস্টসেলার</span></div>
+        <div class="clvl">Advanced</div>
+      </div>
+      <div class="cbody">
+        <div class="ccat">Advanced</div>
+        <div class="ctit" data-bn="Advanced English Communication" data-en="Advanced English Communication" data-zh="高级英语沟通">Advanced English Communication</div>
+        <div class="cdesc" data-bn="Debate, Presentation, Public Speaking — উচ্চ স্তরের ইংরেজি যোগাযোগ দক্ষতা অর্জন করুন।" data-en="Debate, Presentation, Public Speaking — master high-level English communication." data-zh="辩论、演讲、公开发言——掌握高级英语沟通技能。">Debate, Presentation, Public Speaking — উচ্চ স্তরের দক্ষতা।</div>
+        <div class="cmeta"><span class="cm">⏱ <span data-bn="৩৫+ ঘণ্টা" data-en="35+ Hours" data-zh="35+小时">৩৫+ ঘণ্টা</span></span><span class="cm">👥 ৩,৯০০+</span><span class="cm">📹 <span data-bn="৭০+ লেসন" data-en="70+ Lessons" data-zh="70+课时">৭০+ লেসন</span></span></div>
+        <div class="cfoot"><div class="cprice"><span class="pn">৳২,০০০</span><span class="pw">৳৪,০০০</span></div><button class="btn-ec" data-bn="এনরোল করুন" data-en="Enroll Now" data-zh="立即报名">এনরোল করুন</button></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="sec" id="why">
+  <div class="sec-eye" data-bn="💡 কেন আমরা?" data-en="💡 Why Choose Us?" data-zh="💡 为什么选择我们?">💡 কেন আমরা?</div>
+  <h2 class="sec-h rv" data-bn="Reduan's Method কেন <span class='gr'>আলাদা?</span>" data-en="Why Reduan's Method is <span class='gr'>Different?</span>" data-zh="为什么瑞德万教学法<span class='gr'>与众不同?</span>">Reduan's Method কেন <span class="gr">আলাদা?</span></h2>
+  <p class="sec-sub rv" data-bn="লক্ষাধিক শিক্ষার্থীর বিশ্বাসের পেছনে রয়েছে আমাদের অনন্য পদ্ধতি এবং অক্লান্ত পরিশ্রম।" data-en="Hundreds of thousands of students trust us — backed by unique methods and tireless dedication." data-zh="数十万学生信任我们——背后是我们独特的方法和不懈的努力。">লক্ষাধিক শিক্ষার্থীর বিশ্বাসের পেছনে রয়েছে আমাদের অনন্য পদ্ধতি এবং অক্লান্ত পরিশ্রম।</p>
+  <div class="fgrid">
+    <div class="fcard2 rv"><div class="fglow" style="background:#7c3aed"></div><div class="fiw" style="background:linear-gradient(135deg,rgba(124,58,237,.28),rgba(124,58,237,.08));border:1px solid rgba(124,58,237,.28)">🎯</div><h3 class="ftit" data-bn="প্রমাণিত পদ্ধতি" data-en="Proven Method" data-zh="经过验证的方法">প্রমাণিত পদ্ধতি</h3><p class="fdesc" data-bn="Reduan Sir-এর নিজস্ব অনন্য পদ্ধতি যা হাজার হাজার শিক্ষার্থীর জীবন বদলে দিয়েছে।" data-en="Reduan Sir's unique method has transformed thousands of students' lives." data-zh="瑞德万老师的独特方法已经改变了数千名学生的生活。">Reduan Sir-এর নিজস্ব অনন্য পদ্ধতি যা হাজার হাজার শিক্ষার্থীর জীবন বদলে দিয়েছে।</p></div>
+    <div class="fcard2 rv d1"><div class="fglow" style="background:#06b6d4"></div><div class="fiw" style="background:linear-gradient(135deg,rgba(6,182,212,.28),rgba(6,182,212,.08));border:1px solid rgba(6,182,212,.28)">🎥</div><h3 class="ftit" data-bn="HD ভিডিও লেসন" data-en="HD Video Lessons" data-zh="高清视频课程">HD ভিডিও লেসন</h3><p class="fdesc" data-bn="প্রতিটি কোর্সে উচ্চমানের HD ভিডিও লেসন যা যেকোনো ডিভাইসে দেখা যাবে।" data-en="Every course includes high-quality HD video lessons accessible on any device." data-zh="每门课程包含高清视频课程，可在任何设备上观看。">প্রতিটি কোর্সে উচ্চমানের HD ভিডিও লেসন যা যেকোনো ডিভাইসে দেখা যাবে।</p></div>
+    <div class="fcard2 rv d2"><div class="fglow" style="background:#ec4899"></div><div class="fiw" style="background:linear-gradient(135deg,rgba(236,72,153,.28),rgba(236,72,153,.08));border:1px solid rgba(236,72,153,.28)">📱</div><h3 class="ftit" data-bn="যেকোনো সময়" data-en="Learn Anytime" data-zh="随时学习">যেকোনো সময়</h3><p class="fdesc" data-bn="মোবাইল, ট্যাবলেট বা কম্পিউটার — যেকোনো ডিভাইসে আপনার নিজের গতিতে শিখুন।" data-en="Mobile, tablet, or computer — learn at your own pace on any device." data-zh="手机、平板或电脑——在任何设备上按自己的节奏学习。">মোবাইল, ট্যাবলেট বা কম্পিউটার — যেকোনো ডিভাইসে শিখুন।</p></div>
+    <div class="fcard2 rv d3"><div class="fglow" style="background:#f59e0b"></div><div class="fiw" style="background:linear-gradient(135deg,rgba(245,158,11,.28),rgba(245,158,11,.08));border:1px solid rgba(245,158,11,.28)">🤝</div><h3 class="ftit" data-bn="লাইভ সাপোর্ট" data-en="Live Support" data-zh="在线支持">লাইভ সাপোর্ট</h3><p class="fdesc" data-bn="যেকোনো সমস্যায় সরাসরি ইন্সট্রাক্টরের সাথে কথা বলার সুযোগ পাবেন।" data-en="Get direct access to your instructor for any questions or support." data-zh="遇到任何问题都可以直接与讲师交流。">যেকোনো সমস্যায় সরাসরি ইন্সট্রাক্টরের সাথে কথা বলুন।</p></div>
+    <div class="fcard2 rv d4"><div class="fglow" style="background:#10b981"></div><div class="fiw" style="background:linear-gradient(135deg,rgba(16,185,129,.28),rgba(16,185,129,.08));border:1px solid rgba(16,185,129,.28)">🏆</div><h3 class="ftit" data-bn="সার্টিফিকেট" data-en="Certificate" data-zh="证书">সার্টিফিকেট</h3><p class="fdesc" data-bn="কোর্স সম্পন্ন করলে পাবেন বিশ্বমানের সার্টিফিকেট যা চাকরিতে কাজে আসবে।" data-en="Complete a course and earn a world-class certificate recognized by employers." data-zh="完成课程获得世界级证书，受雇主认可。">কোর্স সম্পন্ন করলে পাবেন বিশ্বমানের সার্টিফিকেট।</p></div>
+    <div class="fcard2 rv d5"><div class="fglow" style="background:#3b82f6"></div><div class="fiw" style="background:linear-gradient(135deg,rgba(59,130,246,.28),rgba(59,130,246,.08));border:1px solid rgba(59,130,246,.28)">🌍</div><h3 class="ftit" data-bn="৩ ভাষায় শিখুন" data-en="3 Languages" data-zh="3种语言">৩ ভাষায় শিখুন</h3><p class="fdesc" data-bn="বাংলা, ইংরেজি অথবা চাইনিজ — আপনার পছন্দের ভাষায় ইংরেজি শেখার অভিজ্ঞতা নিন।" data-en="Bengali, English, or Chinese — experience English learning in your language." data-zh="孟加拉语、英语或中文——用您喜欢的语言学习英语。">বাংলা, ইংরেজি অথবা চাইনিজ — পছন্দের ভাষায় শিখুন।</p></div>
+  </div>
+</section>
+
+<!-- TESTI -->
+<section class="sec" id="testi">
+  <div class="sec-eye" data-bn="💬 রিভিউ" data-en="💬 Student Reviews" data-zh="💬 学生评价">💬 রিভিউ</div>
+  <h2 class="sec-h rv" data-bn="তারা কী <span class='gr'>বলছেন?</span>" data-en="What They're <span class='gr'>Saying?</span>" data-zh="他们怎么<span class='gr'>说?</span>">তারা কী <span class="gr">বলছেন?</span></h2>
+  <p class="sec-sub rv" data-bn="আমাদের শিক্ষার্থীদের সত্যিকারের অভিজ্ঞতা — কোনো নাটক নয়, শুধু বাস্তব ফলাফল।" data-en="Real experiences from our students — no drama, just real results." data-zh="学生的真实经历——不夸大，只有真实成果。">আমাদের শিক্ষার্থীদের সত্যিকারের অভিজ্ঞতা।</p>
+  <div class="tgrid">
+    <div class="tcard rv"><div class="tstars">⭐⭐⭐⭐⭐</div><p class="tq" data-bn='"Reduan Sir-এর Spoken English কোর্সটা আমার জীবন বদলে দিয়েছে। মাত্র ৩ মাসে অফিসে কনফিডেন্টলি ইংরেজিতে কথা বলতে পারছি!"' data-en='"Reduan Sir\'s course changed my life. In just 3 months I speak English confidently at the office!"' data-zh='"瑞德万老师的课程改变了我的生活。仅3个月我就能在办公室自信地说英语了！"'>"Reduan Sir-এর কোর্স আমার জীবন বদলে দিয়েছে। মাত্র ৩ মাসে অফিসে কনফিডেন্টলি ইংরেজিতে কথা বলতে পারছি!"</p><div class="tau"><div class="tav" style="background:linear-gradient(135deg,#7c3aed,#06b6d4)">র</div><div><div class="tn">রাফিদ হাসান</div><div class="tr">Software Engineer, Dhaka</div></div></div></div>
+    <div class="tcard rv d1"><div class="tstars">⭐⭐⭐⭐⭐</div><p class="tq" data-bn='"IELTS-এ ৭.৫ পেয়েছি! Reduan\'s Method-এর IELTS কোর্স ছাড়া এটা সম্ভব হতো না। স্যারের Teaching Style অনেক Clear!"' data-en='"Got IELTS 7.5! Without Reduan\'s Method IELTS course it wouldn\'t have been possible. Sir\'s teaching style is so clear!"' data-zh='"雅思考了7.5分！没有瑞德万教学法的课程是不可能的。老师的教学方式非常清晰！"'>"IELTS-এ ৭.৫ পেয়েছি! Reduan's Method ছাড়া এটা সম্ভব হতো না।"</p><div class="tau"><div class="tav" style="background:linear-gradient(135deg,#ec4899,#f59e0b)">স</div><div><div class="tn">সারাহ আক্তার</div><div class="tr">IELTS 7.5, Chittagong</div></div></div></div>
+    <div class="tcard rv d2"><div class="tstars">⭐⭐⭐⭐⭐</div><p class="tq" data-bn='"Business English কোর্সের পর আমার Salary ৪০% বেড়েছে। ক্লায়েন্টদের সাথে এখন ইংরেজিতে কথা বলতে পারি। Thank you Reduan Sir!"' data-en='"After the Business English course my salary increased by 40%. I can now speak English with clients. Thank you Reduan Sir!"' data-zh='"学了商务英语课程后，我的薪资增加了40%。现在能用英语与客户交流了。谢谢瑞德万老师！"'>"Business English কোর্সের পর Salary ৪০% বেড়েছে। Thank you Reduan Sir!"</p><div class="tau"><div class="tav" style="background:linear-gradient(135deg,#10b981,#3b82f6)">ম</div><div><div class="tn">মোহাম্মদ শাহরিয়ার</div><div class="tr">Marketing Manager, Sylhet</div></div></div></div>
+  </div>
+</section>
+
+<!-- INSTRUCTOR -->
+<section class="sec" id="inst">
+  <div class="sec-eye" data-bn="👨‍🏫 ইন্সট্রাক্টর" data-en="👨‍🏫 Instructor" data-zh="👨‍🏫 讲师">👨‍🏫 ইন্সট্রাক্টর</div>
+  <h2 class="sec-h rv" data-bn="<span class='gr'>Reduan Sir</span> সম্পর্কে জানুন" data-en="Meet <span class='gr'>Reduan Sir</span>" data-zh="了解<span class='gr'>瑞德万老师</span>"><span class="gr">Reduan Sir</span> সম্পর্কে জানুন</h2>
+  <div class="iglass rv">
+    <div><div class="iav">👨‍💼<div class="iring"></div></div></div>
+    <div>
+      <h3 class="iname">Reduan Ahmed</h3>
+      <div class="itag">🎓 <span data-bn="English Language Expert & Educator" data-en="English Language Expert & Educator" data-zh="英语语言专家与教育家">English Language Expert & Educator</span></div>
+      <p class="ibio" data-bn="Reduan Sir বাংলাদেশের সবচেয়ে জনপ্রিয় ইংরেজি শিক্ষকদের একজন। তিনি তাঁর নিজস্ব অনন্য পদ্ধতিতে বছরের পর বছর ধরে ইংরেজি শেখাচ্ছেন। তাঁর সহজ, মজাদার এবং কার্যকর পদ্ধতি লক্ষাধিক শিক্ষার্থীর ইংরেজি শেখার ভয় দূর করেছে।" data-en="Reduan Sir is one of Bangladesh's most beloved English teachers. For years he has taught English with his unique method. His simple, engaging teaching has removed the fear of English from millions of learners." data-zh="瑞德万老师是孟加拉国最受欢迎的英语教师之一。多年来用独特方法教英语，让数百万学生克服了对英语的恐惧。">Reduan Sir বাংলাদেশের সবচেয়ে জনপ্রিয় ইংরেজি শিক্ষকদের একজন। তাঁর সহজ, মজাদার এবং কার্যকর পদ্ধতি লক্ষাধিক শিক্ষার্থীর ইংরেজি শেখার ভয় দূর করেছে।</p>
+      <div class="istats">
+        <div class="ist"><span class="isv">৫০K+</span><span class="isl" data-bn="শিক্ষার্থী" data-en="Students" data-zh="学生">শিক্ষার্থী</span></div>
+        <div class="ist"><span class="isv">২০+</span><span class="isl" data-bn="কোর্স" data-en="Courses" data-zh="课程">কোর্স</span></div>
+        <div class="ist"><span class="isv">১০+</span><span class="isl" data-bn="বছর অভিজ্ঞতা" data-en="Yrs Exp." data-zh="年经验">বছর অভিজ্ঞতা</span></div>
+        <div class="ist"><span class="isv">৪.৯★</span><span class="isl" data-bn="রেটিং" data-en="Rating" data-zh="评分">রেটিং</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <div class="cta-g rv">
+    <div class="corb"></div>
+    <h2 data-bn="আজই শুরু করুন আপনার যাত্রা!" data-en="Start Your Journey Today!" data-zh="今天就开始您的学习之旅！">আজই শুরু করুন আপনার যাত্রা!</h2>
+    <p data-bn="৫০,০০০+ শিক্ষার্থীর সাথে যোগ দিন এবং আপনার স্বপ্নের ইংরেজি দক্ষতা অর্জন করুন।" data-en="Join 50,000+ students and achieve the English fluency you've always dreamed of." data-zh="加入50,000多名学生，实现您梦寐以求的英语流利度。">৫০,০০০+ শিক্ষার্থীর সাথে যোগ দিন এবং আপনার স্বপ্নের ইংরেজি দক্ষতা অর্জন করুন।</p>
+    <div class="cbtns">
+      <a href="#courses" class="btn-cm" data-bn="🚀 এখনই এনরোল করুন" data-en="🚀 Enroll Now" data-zh="🚀 立即报名">🚀 এখনই এনরোল করুন</a>
+      <a href="#why" class="btn-hs" data-bn="আরো জানুন" data-en="Learn More" data-zh="了解更多">আরো জানুন</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fgridf">
+    <div>
+      <div style="display:flex;align-items:center;gap:11px;"><div class="n-gem">R</div><div><div class="n-name">Reduan's Method</div><div class="n-tag" data-bn="স্মার্টলি শিখুন ইংরেজি" data-en="Learn English the Smart Way" data-zh="智能学英语">স্মার্টলি শিখুন ইংরেজি</div></div></div>
+      <p class="fbdesc" data-bn="বাংলাদেশের সেরা অনলাইন ইংরেজি শিক্ষা প্ল্যাটফর্ম। সবার কাছে মানসম্পন্ন ইংরেজি শিক্ষা পৌঁছে দেওয়াই আমাদের লক্ষ্য।" data-en="Bangladesh's premier online English education platform. Our goal — quality English education for everyone." data-zh="孟加拉国顶尖在线英语教育平台，让每个人都能接受优质英语教育。">বাংলাদেশের সেরা অনলাইন ইংরেজি শিক্ষা প্ল্যাটফর্ম।</p>
+      <div class="fsocs"><a href="#" class="fsoc">📘</a><a href="#" class="fsoc">📺</a><a href="#" class="fsoc">📸</a><a href="#" class="fsoc">💬</a></div>
+    </div>
+    <div class="fcol"><h4 data-bn="কোর্সসমূহ" data-en="Courses" data-zh="课程">কোর্সসমূহ</h4><ul><li><a href="#">Spoken English</a></li><li><a href="#">Grammar</a></li><li><a href="#">IELTS Prep</a></li><li><a href="#">Business English</a></li><li><a href="#">Pronunciation</a></li></ul></div>
+    <div class="fcol"><h4 data-bn="কোম্পানি" data-en="Company" data-zh="公司">কোম্পানি</h4><ul><li><a href="#" data-bn="আমাদের সম্পর্কে" data-en="About Us" data-zh="关于我们">আমাদের সম্পর্কে</a></li><li><a href="#" data-bn="ইন্সট্রাক্টর" data-en="Instructor" data-zh="讲师">ইন্সট্রাক্টর</a></li><li><a href="#" data-bn="ব্লগ" data-en="Blog" data-zh="博客">ব্লগ</a></li><li><a href="#" data-bn="যোগাযোগ" data-en="Contact" data-zh="联系">যোগাযোগ</a></li></ul></div>
+    <div class="fcol"><h4 data-bn="সহায়তা" data-en="Support" data-zh="支持">সহায়তা</h4><ul><li><a href="#">Help Center</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">FAQ</a></li></ul></div>
+  </div>
+  <div class="fbot">
+    <span data-bn="© ২০২৫ Reduan's Method. সর্বস্বত্ব সংরক্ষিত।" data-en="© 2025 Reduan's Method. All rights reserved." data-zh="© 2025 瑞德万教学法。保留所有权利。">© ২০২৫ Reduan's Method. সর্বস্বত্ব সংরক্ষিত।</span>
+    <span data-bn="❤️ Made in Bangladesh" data-en="❤️ Made in Bangladesh" data-zh="❤️ 孟加拉国制造">❤️ Made in Bangladesh</span>
+  </div>
+</footer>
+
+</div>
+
+<script>
+/* PARTICLES */
+(function(){
+  const c=document.getElementById('ptcl');
+  for(let i=0;i<38;i++){
+    const p=document.createElement('div');
+    p.classList.add('pt');
+    p.style.cssText=`left:${Math.random()*100}%;width:${Math.random()*2+1}px;height:${Math.random()*2+1}px;opacity:${Math.random()*.4+.1};animation-duration:${Math.random()*18+14}s;animation-delay:${Math.random()*-20}s`;
+    c.appendChild(p);
+  }
+})();
+
+/* NAVBAR */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+
+/* SCROLL REVEAL */
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+
+/* FILTER PILLS */
+document.querySelectorAll('.fp').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.fp').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+/* LANGUAGE */
+function setLang(lang,btn){
+  document.querySelectorAll('.lb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.body.className='lang-'+lang;
+  document.querySelectorAll('[data-'+lang+']').forEach(el=>{
+    const v=el.getAttribute('data-'+lang);
+    if(!v)return;
+    el.innerHTML=v;
+  });
+}
+
+/* SMOOTH SCROLL */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
+  });
+});
+
+/* RIPPLE */
+document.querySelectorAll('.btn-ec').forEach(btn=>{
+  btn.addEventListener('click',function(e){
+    const r=document.createElement('span');
+    r.style.cssText=`position:absolute;border-radius:50%;background:rgba(255,255,255,.28);transform:scale(0);animation:rpl .6s linear;width:80px;height:80px;left:${e.offsetX-40}px;top:${e.offsetY-40}px;pointer-events:none`;
+    this.appendChild(r);setTimeout(()=>r.remove(),600);
+  });
+});
+const st=document.createElement('style');
+st.textContent='@keyframes rpl{to{transform:scale(4);opacity:0}}';
+document.head.appendChild(st);
+</script>
+</body>
+</html>
